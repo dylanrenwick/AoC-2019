@@ -5,7 +5,7 @@ export default class Tokenizer {
         ".code", ".data"
     ];
     private static operators: Array<string> = [
-        "add", "mul"
+        "add", "mul", "div", "jmp"
     ];
     private static keywords: Array<string> = [
         "exit"

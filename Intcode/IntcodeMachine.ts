@@ -11,6 +11,8 @@ export default class IntcodeMachine {
     private ops: { [i: number]: (i: number) => void } = {
         1: i => this.memory[this.memory[i+3]] = this.memory[this.memory[i+1]] + this.memory[this.memory[i+2]],
         2: i => this.memory[this.memory[i+3]] = this.memory[this.memory[i+1]] * this.memory[this.memory[i+2]],
+        3: i => this.memory[this.memory[i+3]] = this.memory[this.memory[i+1]] / this.memory[this.memory[i+2]],
+        4: i => this.ip = this.memory[this.memory[i+1]],
         99: i => this.running = false
     };
 

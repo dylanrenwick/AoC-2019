@@ -9,7 +9,7 @@ export default class Parser {
     private static dataOffset: number = 0;
 
     private static operators: Array<string> = [
-        null, "add", "mul"
+        null, "add", "mul", "div", "jmp"
     ];
 
     public static Parse(tokens: Array<Token>): Array<number> {
