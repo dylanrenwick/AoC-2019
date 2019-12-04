@@ -9,6 +9,7 @@ See individual directories for readmes on individual tasks.
  * [Day 1](https://github.com/dylanrenwick/AoC-2019/tree/master/day1)
  * [Day 2](https://github.com/dylanrenwick/AoC-2019/tree/master/day2)
  * [Day 3](https://github.com/dylanrenwick/AoC-2019/tree/master/day3)
+ * [Day 4](https://github.com/dylanrenwick/AoC-2019/tree/master/day4)
 
 ### Other projects
 
