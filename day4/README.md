@@ -6,44 +6,37 @@ The crux of today's solution is the aptly named `getNextAscendingNumber` functio
 
 Given the digits of the output should be ascending, the first thing it does is what I call a "digit smear".
 
-It iterates over the digits of `n`, starting with the first, and if any given digit `i` is greater than the next digit `j`, then we set `j` to `i`, this looks something like this:
+It iterates over the digits of `n`, starting with the first, and if any given digit `i` is greater than the next digit `j`, then we set every digit after `i` to `i`, this looks something like this:
 
 ```
 n = 126380
-max = 0;
 -==================-
 126380
 ^
-max = 1;
 -==================-
 126380
  ^
-max = 2;
 -==================-
 126380
   ^
-max = 6;
 -==================-
 126680
    ^
-max = 6;
 -==================-
-126680
+126660
     ^
-max = 8;
 -==================-
-126688
+126666
      ^
-max = 8;
 -==================-
 
-return 126688;
+return 126666;
 ```
 
 Now, if this value is not equal to `n`, we can return it, as this is reliably the lowest valid `m` value.
 
 If this value *is* equal to `n` however, we need to increment a digit.  
-If the highest digit in `n` is lower than `9`, we just increment the last digit of `n` and try again.  
+If the highest digit in `n` is lower than `9`, we just increment `n` and return that.  
 If the highest digit in `n` *is* `9`, we need to increment an earlier digit.  
 So we start at the end of `n` and work our way backwards, until we find one that is less than `max`.
 

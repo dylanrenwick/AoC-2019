@@ -1,3 +1,5 @@
+const _startTime: Date = new Date();
+
 const range = {
     min: 168630,
     max: 718098
@@ -7,25 +9,36 @@ const range = {
 // and each digit of m is equal to or greater than the previous digit
 function getNextAscendingNumber(start: number): number {
     let digits: number[] = start.toString().split("").map(x => parseInt(x));
-    let max: number = 0;
-    for (let i = 0; i < digits.length; i++) {
-        if (digits[i] > max) max = digits[i];
-        if (max > digits[i]) digits[i] = max;
+
+    for (let i = 0; i < digits.length - 1; i++) {
+        if (digits[i] > digits[i + 1]) {
+            for (let j = i + 1; j < digits.length; j++) {
+                digits[j] = digits[i];
+            }
+            break;
+        }
     }
+
     let result: number = parseInt(digits.join(""));
     if (result === start) {
+        let max: number = Math.max(...digits);
         if (max === 9) {
             let index: number;
+            
             for (index = digits.length - 1; index >= 0; index--) {
-                if (digits[index] < max) break;
+                if (digits[index] < max) {
+                    digits[index]++;
+                    break;
+                }
+                else digits[index] = 0;
             }
+
             if (index === -1) return -1;
-            digits[index]++;
-            let num: number = parseInt(digits.slice(0, index + 1).join(""));
-            result = getNextAscendingNumber(num * (10 ** (digits.length - index - 1)));
+
+            let num: number = parseInt(digits.join(""));
+            result = getNextAscendingNumber(num);
         } else {
-            digits[digits.length - 1]++;
-            return parseInt(digits.join(""));
+            result = start + 1;
         }
     }
     return result;
@@ -56,3 +69,5 @@ for (let current = range.min; current < range.max; current = getNextAscendingNum
 }
 
 console.log(count);
+
+console.log(((new Date().getTime() - _startTime.getTime()) / 1000) + 's');
