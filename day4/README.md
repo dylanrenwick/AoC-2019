@@ -9,53 +9,57 @@ Given the digits of the output should be ascending, the first thing it does is w
 It iterates over the digits of `n`, starting with the first, and if any given digit `i` is greater than the next digit `j`, then we set `j` to `i`, this looks something like this:
 
 ```
-n = 168630
+n = 126380
 max = 0;
 -==================-
-168630
+126380
 ^
 max = 1;
 -==================-
-168630
+126380
  ^
+max = 2;
+-==================-
+126380
+  ^
 max = 6;
 -==================-
-168630
-  ^
-max = 8;
--==================-
-168830
+126680
    ^
-max = 8;
+max = 6;
 -==================-
-168880
+126680
     ^
 max = 8;
 -==================-
-168888
+126688
      ^
 max = 8;
 -==================-
 
-return 168888;
+return 126688;
 ```
 
 Now, if this value is not equal to `n`, we can return it, as this is reliably the lowest valid `m` value.
 
 If this value *is* equal to `n` however, we need to increment a digit.  
+If the highest digit in `n` is lower than `9`, we just increment the last digit of `n` and try again.  
+If the highest digit in `n` *is* `9`, we need to increment an earlier digit.  
 So we start at the end of `n` and work our way backwards, until we find one that is less than `max`.
 
 In this case:
 
 ```
-168888
- ^
+126688 -> 126689
 
-return getNextAscendingNumber(170000);
+126689
+    ^
+
+return getNextAscendingNumber(126690);
 ```
 
-As you can see here, we increment the first digit we find greater than `max`, zero out the other numbers, then use a little recursion.  
-For the record, `getNextAscendingNumber(170000)` would return `177777`.
+As you can see here, we increment the first digit we find greater than `max`, zero out all digits following it, then use a little recursion.  
+For the record, `getNextAscendingNumber(126690)` would return `126699`, which in turn would return `126777`.
 
 ### The next step
 
