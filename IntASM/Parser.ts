@@ -45,7 +45,6 @@ export default class Parser {
 
     private static parseCodeSection(tokens: Array<Token>, endIndex: number) {
         let codeTokens = tokens.slice(0, endIndex);
-        console.log(tokens);
         for (let tokenIndex = 1; tokenIndex < codeTokens.length;) {
             if (codeTokens[tokenIndex].tokenType === TokenType.Keyword) {
                 if (codeTokens[tokenIndex].tokenValue === "exit") {

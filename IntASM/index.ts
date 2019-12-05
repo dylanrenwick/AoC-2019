@@ -16,3 +16,5 @@ const code: string = fileBuffer.toString("utf8");
 const asm: string = IntASM.Compile(code);
 
 writeFileSync(outFile, asm);
+console.log("-===================================================-");
+console.log("Compilation successful! Compiled intcode written to '" + outFile + "'");
