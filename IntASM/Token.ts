@@ -33,5 +33,6 @@ export enum TokenType {
     Operation,
     HexValue,
     VarLabel,
-    Keyword
+    Keyword,
+    Macro
 }

@@ -1,5 +1,5 @@
 import { option, parse } from "args";
-import { readFileSync, writeFileSync, readFile } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import IntASM from "./IntASM";
 
 option("input-file", "The source file from which to read code");

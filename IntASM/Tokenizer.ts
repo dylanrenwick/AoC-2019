@@ -7,6 +7,9 @@ export default class Tokenizer {
     private static operators: Array<string> = [
         "add", "mul", "inp", "prnt", "jmpnz", "jmpz", "le", "eq"
     ];
+    private static macros: Array<string> = [
+        "sub"
+    ];
     private static keywords: Array<string> = [
         "exit"
     ];
@@ -50,6 +53,7 @@ export default class Tokenizer {
         if (this.sections.includes(str)) return new Token(col, row, TokenType.Section, str);
         if (this.operators.includes(str)) return new Token(col, row, TokenType.Operation, str);
         if (this.keywords.includes(str)) return new Token(col, row, TokenType.Keyword, str);
+        if (this.macros.includes(str)) return new Token(col, row, TokenType.Macro, str);
         if (/^\*?(0x[0-9a-f]+$|-?[0-9]+$)/.test(str)) return new Token(col, row, TokenType.HexValue, str);
         if (/^[a-zA-Z_]+$/.test(str)) return new Token(col, row, TokenType.VarLabel, str);
         throw new Error("Invalid token: '" + str + "'");

@@ -15,6 +15,28 @@ export default class Parser {
     private static opParity: Array<number> = [
         0, 3, 3, 1, 1, 2, 2, 3, 3
     ];
+    private static macros: Array<string> = [
+        "sub"
+    ];
+    private static macroParity: Array<number> = [
+        3
+    ];
+    private static realOperator: Array<number> = [
+        1
+    ];
+    private static macroFuncs: Array<(params: {val: number, mode: number}[], modeOp: number) => number[]> = [
+        (params, modeOp) => {
+            modeOp = parseInt(modeOp + "1".padStart(2, "0"));
+            let intcode = [modeOp];
+            if (params[0].mode === 1) params[0].val = -params[0].val;
+            else if (params[1].mode === 1) params[1].val = -params[1].val;
+            else {
+                return [102,-1,params[0].val,params[0].val,modeOp].concat(params.map(p => p.val)).concat([102,-1,params[0].val,params[0].val]);
+            }
+
+            return intcode.concat(params.map(p => p.val));
+        }
+    ];
 
     private static currentOperator: string;
 
@@ -31,7 +53,9 @@ export default class Parser {
 
         this.parseCodeSection(tokens, this.hasData ? dataIndex : tokens.length);
 
-        this.resolveDataSection();
+        if (this.hasData) {
+            this.resolveDataSection();
+        }
 
         return this.code;
     }
@@ -76,6 +100,36 @@ export default class Parser {
                 this.code.push(...[operator].concat(operands.map(o => o.val)));
 
                 tokenIndex += parity + 1;
+            } else if (codeTokens[tokenIndex].tokenType === TokenType.Macro) {
+                let codePos = this.code.length;
+                let operator = this.macros.indexOf(codeTokens[tokenIndex].tokenValue);
+                console.log(`${codeTokens[tokenIndex].tokenValue} (${operator}: ${this.macroParity[operator]})`);
+                this.currentOperator = codeTokens[tokenIndex].tokenValue;
+                if (operator === -1) throw new Error("Invalid operator: '" + codeTokens[tokenIndex].tokenValue + "'");
+                let parity = this.macroParity[operator];
+                let operands = [...new Array(parity)]
+                    .map((_, ix) => {
+                        let o = this.parseOperand(codeTokens[tokenIndex+ix+1]);
+                        if (o instanceof DataVar) {
+                            this.varReferences.push({var: o, address: codePos + ix + 1});
+                            return { val: 0, mode: 0}
+                        }
+                        return o;
+                    });
+
+                let macroFunc = this.macroFuncs[operator];
+
+                if (operands.filter(o => o.mode !== 0).length > 0) {
+                    let modes = operands.map(o => o.mode).reverse().join("");
+                    operator = parseInt(modes);
+                }
+
+                let macroCode = macroFunc(operands, operator);
+                this.code.push(...macroCode);
+                
+                tokenIndex += macroCode.length;
+            } else {
+                throw new Error("Expected operator but got " + codeTokens[tokenIndex].tokenType);
             }
         }
 
