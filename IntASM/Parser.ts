@@ -1,4 +1,5 @@
 import { Token, TokenType } from "./Token";
+import { threadId } from "worker_threads";
 
 export default class Parser {
     private static code: Array<number> = [];
@@ -9,8 +10,13 @@ export default class Parser {
     private static dataOffset: number = 0;
 
     private static operators: Array<string> = [
-        null, "add", "mul", "div", "jmp"
+        null, "add", "mul", "inp", "prnt", "jmpnz", "jmpz", "le", "eq"
     ];
+    private static opParity: Array<number> = [
+        0, 3, 3, 1, 1, 2, 2, 3, 3
+    ];
+
+    private static currentOperator: string;
 
     public static Parse(tokens: Array<Token>): Array<number> {
         this.code = [];
@@ -39,48 +45,57 @@ export default class Parser {
 
     private static parseCodeSection(tokens: Array<Token>, endIndex: number) {
         let codeTokens = tokens.slice(0, endIndex);
-        for (let i = 1; i < codeTokens.length; i += 4) {
-            if (codeTokens[i].tokenType === TokenType.Keyword) {
-                if (codeTokens[i].tokenValue === "exit") {
+        console.log(tokens);
+        for (let tokenIndex = 1; tokenIndex < codeTokens.length;) {
+            if (codeTokens[tokenIndex].tokenType === TokenType.Keyword) {
+                if (codeTokens[tokenIndex].tokenValue === "exit") {
                     this.code.push(99);
-                    i -= 3;
+                    tokenIndex += 1;
                 }
-            } else if (codeTokens[i].tokenType === TokenType.Operation) {
+            } else if (codeTokens[tokenIndex].tokenType === TokenType.Operation) {
                 let codePos = this.code.length;
-                let operator = this.operators.indexOf(codeTokens[i].tokenValue);
-                if (operator === -1) throw new Error("Invalid operator: '" + codeTokens[i].tokenValue + "'");
-                let first = this.parseOperand(codeTokens[i+1]);
-                let second = this.parseOperand(codeTokens[i+2]);
-                let dest = this.parseOperand(codeTokens[i+3]);
+                let operator = this.operators.indexOf(codeTokens[tokenIndex].tokenValue);
+                console.log(`${codeTokens[tokenIndex].tokenValue} (${operator}: ${this.opParity[operator]})`);
+                this.currentOperator = codeTokens[tokenIndex].tokenValue;
+                if (operator === -1) throw new Error("Invalid operator: '" + codeTokens[tokenIndex].tokenValue + "'");
+                let parity = this.opParity[operator];
+                let operands = [...new Array(parity)]
+                    .map((_, ix) => {
+                        let o = this.parseOperand(codeTokens[tokenIndex+ix+1]);
+                        if (o instanceof DataVar) {
+                            this.varReferences.push({var: o, address: codePos + ix + 1});
+                            return { val: 0, mode: 0}
+                        }
+                        return o;
+                    });
 
-                if (first instanceof DataVar) {
-                    this.varReferences.push({var: first, address: codePos + 1});
-                    first = 0;
-                }
-                if (second instanceof DataVar) {
-                    this.varReferences.push({var: second, address: codePos + 2});
-                    second = 0;
-                }
-                if (dest instanceof DataVar) {
-                    this.varReferences.push({var: dest, address: codePos + 3});
-                    dest = 0;
+                if (operands.filter(o => o.mode !== 0).length > 0) {
+                    let modes = operands.map(o => o.mode).reverse().join("");
+                    operator = parseInt(modes + operator.toString().padStart(2, "0"));
                 }
 
-                this.code.push(operator, first, second, dest);
+                this.code.push(...[operator].concat(operands.map(o => o.val)));
+
+                tokenIndex += parity + 1;
             }
         }
 
         this.dataOffset = this.code.length;
     }
 
-    private static parseOperand(token: Token): number | DataVar {
-        if (token.tokenType === TokenType.HexValue) return parseInt(token.tokenValue);
+    private static parseOperand(token: Token): { val: number, mode: number } | DataVar {
+        if (token.tokenType === TokenType.HexValue) {
+            return {
+                val: parseInt(token.tokenValue),
+                mode: token.mode
+            };
+        }
         if (token.tokenType === TokenType.VarLabel) {
             let foundVar = this.dataVars.filter(dv => dv.name === token.tokenValue)[0];
             if (foundVar !== undefined) return foundVar;
             throw new Error("Undefined variable '" + foundVar + "' referenced");
         }
-        throw new Error("Invalid operand: '" + token.tokenValue + "'");
+        throw new Error("Invalid operand: '" + token.tokenValue + "' at {row: " + token.row + ", col: " + token.column + "} while parsing operator " + this.currentOperator);
     }
 
     private static parseDataSection(tokens: Array<Token>, dataIndex: number) {
