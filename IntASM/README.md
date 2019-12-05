@@ -34,3 +34,39 @@ These operate identically to their respective opcodes in AoC's Intcode.
 The `.data` section consists of a series of variable declarations.  
 These consist of a label followed by a value.  
 Any references to the label in code will, at compile time, be replaced with the address of the variable, which will store the label.
+
+## Parameter modes
+
+When using numeric literals (in integer or hex format), the default is immediate mode, ie the value is treated as-is.
+
+For example:
+```
+add 2 3 3
+```
+Will add the values `2` and `3`, rather than the values *stored* at those positions.  
+It will, however, still store the value at *position* 3, as destination parameters must always be position mode (except for jump destinations)
+
+If you would like to instead reference a *position*, use the asterisk symbol:
+```
+add *2 *3 3
+```
+Will add the value stored at position `2` to the value stored at position `3`, in this case `3 + 3`
+
+**Note:** Variable references are always position mode.
+```
+add myVar 3 3
+```
+Will always add `3` to the value *stored at* myVar. This means that multiple operations that access the same variable will affect eachother. There is currently no support for immediate mode variables.
+
+## Operators
+```
+add x y d - Store x + y at location d
+mul x y d - Store x * y at location d
+inp d     - Read from input and store at location d
+prnt x    - Print x to STDOUT
+jmpnz x d - Jump to d if x is not zero
+jmpz x d  - Jump to d if x is zero
+le x y d  - Store 1 at location d if x < y, otherwise store 0
+eq x y d  - Store 1 at location d if x = y, otherwise store 0
+exit      - Terminate
+```
