@@ -10,7 +10,7 @@ export default class Parser {
     private static dataOffset: number = 0;
 
     private static operators: Array<string> = [
-        null, "add", "mul", "inp", "prnt", "jmpnz", "jmpz", "le", "eq"
+        null, "add", "mul", "inp", "out", "jnz", "jz", "lt", "eq"
     ];
     private static opParity: Array<number> = [
         0, 3, 3, 1, 1, 2, 2, 3, 3

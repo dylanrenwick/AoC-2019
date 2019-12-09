@@ -5,7 +5,7 @@ export default class Tokenizer {
         ".code", ".data"
     ];
     private static operators: Array<string> = [
-        "add", "mul", "inp", "prnt", "jmpnz", "jmpz", "le", "eq"
+        "add", "mul", "inp", "out", "jnz", "jz", "lt", "eq"
     ];
     private static macros: Array<string> = [
         "sub"
