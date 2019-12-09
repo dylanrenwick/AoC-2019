@@ -62,8 +62,8 @@ Will always add `3` to the value *stored at* myVar. This means that multiple ope
 ```
 add x y d - Store x + y at location d
 mul x y d - Store x * y at location d
-inp d     - Read from input and store at location d
-out x     - Print x to STDOUT
+get d     - Read from input and store at location d
+put x     - Print x to STDOUT
 jnz x d   - Jump to d if x is not zero
 jz x d    - Jump to d if x is zero
 lt x y d  - Store 1 at location d if x < y, otherwise store 0
